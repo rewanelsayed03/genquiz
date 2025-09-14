@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 
 const Quiz = ({ questions }) => {
@@ -22,7 +22,25 @@ const Quiz = ({ questions }) => {
         setAnswers(newAnswers);
     };
 
-    const res = await axios.post("/api/submit", { answers });
+    // ✅ merged submit logic (send to backend + mark submitted)
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const res = await fetch('/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers }),
+            });
+
+            const data = await res.json();
+            console.log("Backend response:", data);
+        } catch (err) {
+            console.error("Error submitting quiz:", err);
+        }
+
+        setSubmitted(true);
+    };
 
     const handleNext = () => {
         if (current < questions.length - 1) setCurrent(current + 1);
@@ -31,8 +49,6 @@ const Quiz = ({ questions }) => {
     const handlePrev = () => {
         if (current > 0) setCurrent(current - 1);
     };
-
-    const handleSubmit = () => setSubmitted(true);
 
     const handleReturn = () => {
         setStarted(false);
@@ -174,9 +190,41 @@ const Quiz = ({ questions }) => {
                     </div>
 
                     <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between" }}>
-                        {current > 0 && <button style={buttonStyles} onClick={handlePrev}>Previous</button>}
-                        {current < questions.length - 1 && <button style={buttonStyles} onClick={handleNext}>Next</button>}
-                        {current === questions.length - 1 && <button style={buttonStyles} onClick={handleSubmit}>Submit</button>}
+                        {current > 0 && (
+                            <button style={buttonStyles} onClick={handlePrev}>
+                                Previous
+                            </button>
+                        )}
+
+                        {/* ✅ Next is disabled until answered */}
+                        {current < questions.length - 1 && (
+                            <button
+                                style={{
+                                    ...buttonStyles,
+                                    opacity: answers[current] ? 1 : 0.5,
+                                    cursor: answers[current] ? "pointer" : "not-allowed",
+                                }}
+                                onClick={handleNext}
+                                disabled={!answers[current]}
+                            >
+                                Next
+                            </button>
+                        )}
+
+                        {/* ✅ Submit is disabled until last question is answered */}
+                        {current === questions.length - 1 && (
+                            <button
+                                style={{
+                                    ...buttonStyles,
+                                    opacity: answers[current] ? 1 : 0.5,
+                                    cursor: answers[current] ? "pointer" : "not-allowed",
+                                }}
+                                onClick={handleSubmit}
+                                disabled={!answers[current]}
+                            >
+                                Submit
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
