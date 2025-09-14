@@ -12,7 +12,7 @@ app.use(express.json());
 
 const Question = require("./models/Question");
 
-// GET all questions
+
 app.get("/questions", async (req, res) => {
     try {
         const questions = await Question.find();
@@ -25,7 +25,7 @@ app.get("/questions", async (req, res) => {
 
 const Result = require("./models/Result");
 
-app.use(express.json()); // make sure this is present to parse JSON
+app.use(express.json()); 
 
 app.post("/submit", async (req, res) => {
     const { answers } = req.body;
@@ -34,8 +34,8 @@ app.post("/submit", async (req, res) => {
         return res.status(400).json({ error: "Answers are required and must be an array." });
     }
 
-    // Example: simple scoring logic
-    const score = answers.length; // you can make a real scoring system here
+    
+    const score = answers.length; 
 
     try {
         const result = new Result({ answers, score });
