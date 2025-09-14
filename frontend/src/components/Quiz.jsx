@@ -22,6 +22,8 @@ const Quiz = ({ questions }) => {
         setAnswers(newAnswers);
     };
 
+    const res = await axios.post("/api/submit", { answers });
+
     const handleNext = () => {
         if (current < questions.length - 1) setCurrent(current + 1);
     };
