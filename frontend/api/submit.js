@@ -18,7 +18,7 @@ async function connectToDatabase(uri, dbName = "genquiz") {
 }
 
 export default async function handler(req, res) {
-    // Only allow POST from frontend submit
+   
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
@@ -28,17 +28,17 @@ export default async function handler(req, res) {
 
     try {
         const { db } = await connectToDatabase(MONGO_URI, "genquiz");
-        const payload = req.body; // expect { answers: [...] } from frontend
+        const payload = req.body; 
 
-        // basic scoring logic example (customize to your app)
+   
         const answers = (payload.answers || []).map(a => (typeof a === "string" ? a.toLowerCase().trim() : a));
         const score = answers.reduce((acc, a) => (a === "correct" ? acc + 1 : acc), 0);
 
-        // generate a result message based on your condition
+       
         const isWarning = (answers[0] && answers[0] === "dry") || (answers[1] && answers[1] === "always");
         const message = isWarning ? "You might want to focus more on skincare." : "You have great skin care habits!";
 
-        // save submission to DB
+      
         const submissions = db.collection("submissions");
         await submissions.insertOne({
             answers,
