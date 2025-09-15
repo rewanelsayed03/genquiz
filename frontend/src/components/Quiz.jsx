@@ -1,12 +1,29 @@
 ﻿import React, { useState, useEffect } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 
-const Quiz = ({ questions }) => {
+const Quiz = () => {
+    const [questions, setQuestions] = useState([]);
     const [current, setCurrent] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [started, setStarted] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
+    const [resultMessage, setResultMessage] = useState("");
+
+    // Fetch questions from backend
+    useEffect(() => {
+        const fetchQuestions = async () => {
+            try {
+                const res = await fetch("https://genquiz-production.up.railway.app/questions");
+                const data = await res.json();
+                setQuestions(data);
+            } catch (err) {
+                console.error("Error fetching questions:", err);
+            }
+        };
+
+        fetchQuestions();
+    }, []);
 
     // Apply dark mode to body
     useEffect(() => {
@@ -22,21 +39,27 @@ const Quiz = ({ questions }) => {
         setAnswers(newAnswers);
     };
 
-    // ✅ merged submit logic (send to backend + mark submitted)
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const res = await fetch('/api/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("https://genquiz-production.up.railway.app/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ answers }),
             });
 
             const data = await res.json();
             console.log("Backend response:", data);
+
+            if (data.message) {
+                setResultMessage(data.message);
+            } else {
+                setResultMessage("Thank you for completing the quiz!");
+            }
         } catch (err) {
             console.error("Error submitting quiz:", err);
+            setResultMessage("Something went wrong. Please try again.");
         }
 
         setSubmitted(true);
@@ -55,19 +78,12 @@ const Quiz = ({ questions }) => {
         setCurrent(0);
         setAnswers([]);
         setSubmitted(false);
+        setResultMessage("");
     };
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
-    // --- CONDITION ADDED ---
-    const isResultWarning =
-        (answers[0] && answers[0].toLowerCase() === "dry") ||
-        (answers[1] && answers[1].toLowerCase() === "always");
-
-    const resultMessage = isResultWarning
-        ? "You might want to focus more on skincare."
-        : "You have great skin care habits!";
-
+    // Styling
     const pageStyles = {
         minHeight: "100vh",
         display: "flex",
@@ -105,7 +121,7 @@ const Quiz = ({ questions }) => {
     const resultBarStyles = {
         padding: "20px 40px",
         borderRadius: "30px",
-        backgroundColor: isResultWarning ? "#ff4d4d" : "#4caf50",
+        backgroundColor: "#4caf50",
         color: "#fff",
         fontWeight: "bold",
         fontSize: "22px",
@@ -196,7 +212,6 @@ const Quiz = ({ questions }) => {
                             </button>
                         )}
 
-                        {/* ✅ Next is disabled until answered */}
                         {current < questions.length - 1 && (
                             <button
                                 style={{
@@ -211,7 +226,6 @@ const Quiz = ({ questions }) => {
                             </button>
                         )}
 
-                        {/* ✅ Submit is disabled until last question is answered */}
                         {current === questions.length - 1 && (
                             <button
                                 style={{
