@@ -7,50 +7,27 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json()); // allows JSON bodies
 
-<<<<<<< HEAD
-
+// Import models
 const Question = require("./models/Question");
+const Result = require("./models/Result");
 
+// --- Test Route ---
+app.get("/", (req, res) => {
+    res.send("✅ Backend is running on Railway!");
+});
 
-app.get("/questions", async (req, res) => {
+// --- Quiz Questions Route ---
+app.get("/api/quiz", async (req, res) => {
     try {
-        const questions = await Question.find();
+        const questions = await Question.find(); // fetch from DB
         res.json(questions);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-=======
-// --- Test Route ---
-app.get("/", (req, res) => {
-    res.send("✅ Backend is running on Railway!");
->>>>>>> 1e8005d (Updated backend/server.js, frontend Quiz component, deleted obsolete files, added new API folder)
 });
 
-// --- Quiz Questions Route ---
-app.get("/api/quiz", (req, res) => {
-    const questions = [
-        {
-            question: "What is your skin type?",
-            options: ["Oily", "Dry", "Normal"],
-        },
-        {
-            question: "How often do you wash your face?",
-            options: ["Once a day", "Twice a day", "Always"],
-        },
-    ];
-    res.json(questions);
-});
-
-<<<<<<< HEAD
-const Result = require("./models/Result");
-
-app.use(express.json()); 
-
-app.post("/submit", async (req, res) => {
-=======
 // --- Submit Route ---
-app.post("/api/submit", (req, res) => {
->>>>>>> 1e8005d (Updated backend/server.js, frontend Quiz component, deleted obsolete files, added new API folder)
+app.post("/api/submit", async (req, res) => {
     const { answers } = req.body;
     console.log("📩 Received answers:", answers);
 
@@ -58,14 +35,9 @@ app.post("/api/submit", (req, res) => {
         (answers[0] && answers[0].toLowerCase() === "dry") ||
         (answers[1] && answers[1].toLowerCase() === "always");
 
-<<<<<<< HEAD
-    
-    const score = answers.length; 
-=======
     const resultMessage = isWarning
         ? "You might want to focus more on skincare."
         : "You have great skin care habits!";
->>>>>>> 1e8005d (Updated backend/server.js, frontend Quiz component, deleted obsolete files, added new API folder)
 
     res.json({ success: true, message: resultMessage });
 });
